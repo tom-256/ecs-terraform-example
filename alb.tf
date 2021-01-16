@@ -31,7 +31,7 @@ resource "aws_lb" "main" {
   subnets            = [aws_subnet.public_1a.id, aws_subnet.public_1c.id]
 }
 
-resource "aws_alb_listener" "main" {
+resource "aws_lb_listener" "main" {
   port              = 80
   protocol          = "HTTP"
   load_balancer_arn = aws_lb.main.arn
@@ -44,3 +44,32 @@ resource "aws_alb_listener" "main" {
     }
   }
 }
+
+resource "aws_lb_target_group" "main" {
+  name        = "ecs-test"
+  port        = 80
+  protocol    = "HTTP"
+  target_type = "ip"
+  vpc_id      = aws_vpc.main.id
+  health_check {
+    port = 80
+    path = "/"
+  }
+}
+
+resource "aws_lb_listener_rule" "main" {
+  listener_arn = aws_lb_listener.main.arn
+
+  action {
+    type             = "forward"
+    target_group_arn = aws_lb_target_group.main.arn
+  }
+
+  condition {
+    path_pattern {
+      values = ["*"]
+    }
+  }
+}
+
+
