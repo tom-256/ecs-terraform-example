@@ -29,7 +29,7 @@ data "aws_iam_role" "ecs_task_execution_role" {
 }
 
 resource "aws_ecs_task_definition" "service_a" {
-  family                   = "service"
+  family                   = "service-a"
   container_definitions    = <<DEFINITIONS
   [
     {
