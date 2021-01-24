@@ -49,7 +49,7 @@ resource "aws_ecs_task_definition" "service_a" {
   memory                   = "512"
   network_mode             = "awsvpc"
   depends_on               = [aws_ecr_repository.main]
-  execution_role_arn       = "${data.aws_iam_role.ecs_task_execution_role.arn}"
+  execution_role_arn       = data.aws_iam_role.ecs_task_execution_role.arn
 }
 
 resource "aws_ecs_cluster" "main" {
