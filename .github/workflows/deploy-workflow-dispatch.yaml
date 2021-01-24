@@ -32,7 +32,7 @@ jobs:
           IMAGE_TAG: ${{ github.sha }}
           REPOSTORY:  ${{ github.repository }}
         run: |
-          export EXIST=$(aws ecr describe-images --repository-name  --image-ids imageTag=$IMAGE_TAG)
+          export EXIST=$(aws ecr describe-images --repository-name $REPOSTORY --image-ids imageTag=$IMAGE_TAG)
           echo "::set-output name=exist::$(test $EXIST != 0 && echo true || echo false)"
 
       - name: build image if not exists
