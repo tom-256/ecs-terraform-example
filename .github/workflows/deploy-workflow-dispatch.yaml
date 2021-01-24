@@ -49,7 +49,9 @@ jobs:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           ECR_REPOSITORY: ${{ github.repository }}
           IMAGE_TAG: ${{ github.sha }}
-        run: echo $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+        run: |
+          echo ${{ steps.build-image.outputs.image }}
+          echo $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
 
       - name: Fill in the new image ID in the Amazon ECS task definition
         id: task-def
