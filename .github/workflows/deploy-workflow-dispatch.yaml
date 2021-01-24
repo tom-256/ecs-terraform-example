@@ -25,6 +25,27 @@ jobs:
       - name: Login to Amazon ECR
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v1
+      
+      - name: describe image
+        id: describe-image
+        env:
+          IMAGE_TAG: ${{ github.sha }}
+          REPOSTORY:  ${{ github.repository }}
+        run: |
+          export EXIST=$(aws ecr describe-images --repository-name  --image-ids imageTag=$IMAGE_TAG)
+          echo "::set-output name=exist::$(test $EXIST != 0 && echo true || echo false)"
+
+      - name: build image if not exists
+        id: build-image
+        if: steps.describe-image.outputs.exist == false
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          ECR_REPOSITORY:  ${{ github.repository }}
+          IMAGE_TAG: ${{ github.sha }}
+        run: |
+          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG -f app/Dockerfile app/
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+          echo "::set-output name=image::$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
 
       - name: Fill in the new image ID in the Amazon ECS task definition
         id: task-def
