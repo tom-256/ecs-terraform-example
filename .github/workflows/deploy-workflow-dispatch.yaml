@@ -1,7 +1,7 @@
 on:
   workflow_dispatch:
 
-name: Deploy to Amazon ECS
+name: Deploy to ECS by workflow dispatch
 
 jobs:
   deploy:
