@@ -33,11 +33,11 @@ jobs:
           REPOSTORY:  ${{ github.repository }}
         run: |
           export EXIST=$(aws ecr describe-images --repository-name $REPOSTORY --image-ids imageTag=$IMAGE_TAG)
-          echo "::set-output name=exist::$(test $EXIST != 0 && echo true || echo false)"
+          echo "::set-output name=exist::$(test $EXIST != 0 && echo 'true' || echo 'false')"
 
       - name: build image if not exists
         id: build-image
-        if: steps.describe-image.outputs.exist == false
+        if: steps.describe-image.outputs.exist == 'false'
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           ECR_REPOSITORY:  ${{ github.repository }}
