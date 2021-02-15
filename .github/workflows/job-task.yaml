@@ -1,7 +1,7 @@
 on:
   workflow_dispatch:
 
-name: Deploy to ECS by workflow dispatch
+name: job task
 
 jobs:
   deploy:
