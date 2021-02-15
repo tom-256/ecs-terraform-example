@@ -1,0 +1,39 @@
+on:
+  workflow_dispatch:
+
+name: Deploy to ECS by workflow dispatch
+
+jobs:
+  deploy:
+    name: Deploy
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ap-northeast-1
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v1
+
+      - name: update task def
+        env:
+          ECR_IMAGE: alpine:3.4
+        run: |
+          NEW_TASK_DEFINTIION=$(echo $TASK_DEFINITION | jq --arg IMAGE "$ECR_IMAGE" '.taskDefinition | .containerDefinitions[0].image = $IMAGE | del(.taskDefinitionArn) | del(.revision) | del(.status) | del(.requiresAttributes) | del(.compatibilities)')
+          aws ecs register-task-definition --cli-input-json "$NEW_TASK_DEFINTIION"
+# describe subnet by tag
+      - name: describe security group by tag
+        id: describe_sg
+        run: |
+          SG=$(aws ec2 describe-security-groups --filters Name=tag:Name,Values=ecs_test_ecs --query "SecurityGroups[*].[OwnerId]" --output text)
+          echo '::set-output name=sg::$SG'
+      - name: run job task
+        run: aws ecs run-task --cluster ecs-test --launch-type "FARGATE" --network-configuration "awsvpcConfiguration={subnets=[${{ secrets.ECS_SUBNETS_A}},<${{ secrets.ECS_SUBNETS_C}}>],securityGroups=[${{ secrets.SECURITY_GROUP }}]}" job-task-def
