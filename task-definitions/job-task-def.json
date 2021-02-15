@@ -1,61 +1,39 @@
 {
-    "taskDefinition": {
-        "containerDefinitions": [
-            {
-                "name": "alpine_ping",
-                "image": "alpine:3.4",
-                "command": [
-                    "-c",
-                    "4",
-                    "google.com"
-                ],
-                "portMappings": [],
-                "essential": true,
-                "environment": [],
-                "mountPoints": [],
-                "volumesFrom": [],
-                "logConfiguration": {
-                    "logDriver": "awslogs",
-                    "options": {
-                        "awslogs-group": "/ecs/job-task-def",
-                        "awslogs-region": "ap-northeast-1",
-                        "awslogs-stream-prefix": "ecs"
-                    }
+    "containerDefinitions": [
+        {
+            "name": "alpine_ping",
+            "image": "alpine:3.4",
+            "entryPoint": [
+                "ping"
+            ],
+            "command": [
+                "-c",
+                "4",
+                "google.com"
+            ],
+            "portMappings": [],
+            "essential": true,
+            "environment": [],
+            "mountPoints": [],
+            "volumesFrom": [],
+            "logConfiguration": {
+                "logDriver": "awslogs",
+                "options": {
+                    "awslogs-group": "/ecs/job-task-def",
+                    "awslogs-region": "ap-northeast-1",
+                    "awslogs-stream-prefix": "ecs"
                 }
             }
-        ],
-        "family": "job-task-def",
-        "executionRoleArn": "arn:aws:iam::783009118689:role/ecsTaskExecutionRole",
-        "networkMode": "awsvpc",
-        "revision": 1,
-        "volumes": [],
-        "status": "ACTIVE",
-        "requiresAttributes": [
-            {
-                "name": "com.amazonaws.ecs.capability.logging-driver.awslogs"
-            },
-            {
-                "name": "ecs.capability.execution-role-awslogs"
-            },
-            {
-                "name": "com.amazonaws.ecs.capability.docker-remote-api.1.19"
-            },
-            {
-                "name": "com.amazonaws.ecs.capability.docker-remote-api.1.18"
-            },
-            {
-                "name": "ecs.capability.task-eni"
-            }
-        ],
-        "placementConstraints": [],
-        "compatibilities": [
-            "EC2",
-            "FARGATE"
-        ],
-        "requiresCompatibilities": [
-            "FARGATE"
-        ],
-        "cpu": "256",
-        "memory": "512"
-    }
+        }
+    ],
+    "family": "job-task-def",
+    "executionRoleArn": "arn:aws:iam::783009118689:role/ecsTaskExecutionRole",
+    "networkMode": "awsvpc",
+    "volumes": [],
+    "placementConstraints": [],
+    "requiresCompatibilities": [
+        "FARGATE"
+    ],
+    "cpu": "256",
+    "memory": "512"
 }
