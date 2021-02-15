@@ -36,5 +36,18 @@ jobs:
         run: |
           SG=$(aws ec2 describe-security-groups --filters Name=tag:Name,Values=ecs_test_ecs --query "SecurityGroups[*].[OwnerId]" --output text)
           echo '::set-output name=sg::$SG'
+
+      - name: describe subnets
+        id: subnets
+        run: |
+          SUBNETS=$(aws ecs describe-services --services fargate-service --cluster ecs-test --query "services[*].networkConfiguration.awsvpcConfiguration.join(',',subnets[])" --output text)
+          echo '::set-output name=SUBNETS::$SUBNETS'
+
+      - name: describe sg
+        id: security-groups
+        run: |
+          SECURITY_GROUP=$(aws ecs describe-services --services fargate-service --cluster ecs-test --query "services[*].networkConfiguration.awsvpcConfiguration.securityGroups" --output text)
+          echo '::set-output name=SECURITY_GROUPS::$SECURITY_GROUPS'
+
       - name: run job task
-        run: aws ecs run-task --cluster ecs-test --launch-type "FARGATE" --network-configuration "awsvpcConfiguration={subnets=[${{ secrets.ECS_SUBNETS_A}},${{ secrets.ECS_SUBNETS_C}}],securityGroups=[${{ secrets.SECURITY_GROUP }}]}" --task-definition job-task-def
+        run: aws ecs run-task --cluster ecs-test --launch-type "FARGATE" --network-configuration "awsvpcConfiguration={subnets=[${{ steps.subnets.outputs.SUBNETS }}],securityGroups=[${{ steps.security-groups.outputs.SECURITY_GROUPS }}]}" --task-definition job-task-def
