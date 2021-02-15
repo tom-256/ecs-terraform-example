@@ -37,4 +37,4 @@ jobs:
           SG=$(aws ec2 describe-security-groups --filters Name=tag:Name,Values=ecs_test_ecs --query "SecurityGroups[*].[OwnerId]" --output text)
           echo '::set-output name=sg::$SG'
       - name: run job task
-        run: aws ecs run-task --cluster ecs-test --launch-type "FARGATE" --network-configuration "awsvpcConfiguration={subnets=[${{ secrets.ECS_SUBNETS_A}},<${{ secrets.ECS_SUBNETS_C}}>],securityGroups=[${{ secrets.SECURITY_GROUP }}]}" --task-definition job-task-def
+        run: aws ecs run-task --cluster ecs-test --launch-type "FARGATE" --network-configuration "awsvpcConfiguration={subnets=[${{ secrets.ECS_SUBNETS_A}},${{ secrets.ECS_SUBNETS_C}}],securityGroups=[${{ secrets.SECURITY_GROUP }}]}" --task-definition job-task-def
