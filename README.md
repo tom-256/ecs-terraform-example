@@ -16,3 +16,9 @@ fix task-def.json
 
 3. commit task-def
 
+
+# run task
+```
+$aws ecs register-task-definition --cli-input-json file://<ABSOLUTE_PATH_TO_TASK_DEF>
+$aws ecs run-task --cluster <CLUSTER_NAME> --launch-type "FARGATE" --network-configuration "awsvpcConfiguration={subnets=[<SUBNETS_A>,<SUBNETS_C>],securityGroups=[<SG>]}" <TASK_DEF_NAME>
+```
