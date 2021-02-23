@@ -75,3 +75,48 @@ resource "aws_ecs_service" "service_a" {
     container_port   = 80
   }
 }
+
+resource "aws_ecs_task_definition" "cron_task" {
+  family                   = "cron-task"
+  container_definitions    = <<DEFINITIONS
+  [
+    {
+      "name": "cron-task",
+      "image": "${aws_ecr_repository.main.repository_url}",
+      "portMappings": [
+        {
+          "containerPort": 80,
+          "hostPort": 80
+        }
+      ],
+      "command": ["printenv"]
+    }
+  ]
+  DEFINITIONS
+  requires_compatibilities = ["FARGATE"]
+  cpu                      = "256"
+  memory                   = "512"
+  network_mode             = "awsvpc"
+  depends_on               = [aws_ecr_repository.main]
+  execution_role_arn       = data.aws_iam_role.ecs_task_execution_role.arn
+}
+
+resource "aws_cloudwatch_event_rule" "scheduled_task" {
+  name                = "scheduled-ecs-event-rule"
+  schedule_expression = "rate(1 minute)"
+}
+
+data "aws_iam_role" "ecs_events_role" {
+  name = "ecsEventsRole"
+}
+
+resource "aws_cloudwatch_event_target" "scheduled_task" {
+  rule = aws_cloudwatch_event_rule.scheduled_task.name
+  arn  = aws_ecs_cluster.main.arn
+  role_arn = data.aws_iam_role.ecs_events_role.arn
+
+  ecs_target {
+    task_count          = 1
+    task_definition_arn = aws_ecs_task_definition.cron_task.arn
+  }
+}
